@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Configure multer to store files with their original extension
 const storage = multer.diskStorage({
@@ -37,6 +38,6 @@ app.post('/generate-og-image', upload.single('image'), async (req, res) => {
 app.use('/og-images', express.static('og-images'));
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 
-app.listen(5000, () => {
-    console.log('Server running on http://localhost:5000');
+app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
 });
