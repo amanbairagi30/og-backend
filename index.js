@@ -4,9 +4,13 @@ const generateOGImage = require('./utils/generateOGImage');
 const fs = require('fs');
 const path = require('path');
 
+const cors = require('cors');
+
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(cors())
 // Configure multer to store files with their original extension
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -22,17 +26,24 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 
 app.post('/generate-og-image', upload.single('image'), async (req, res) => {
-    const { title, content } = req.body;
-    const imagePath = req.file ? req.file.path : null;
+    try {
 
-    console.log('Generating OG Image with:', { title, content, imagePath });
+        const { title, content } = req.body;
+        const imagePath = req.file ? req.file.path : null;
 
-    const ogImage = await generateOGImage(title, content, imagePath);
+        console.log('Generating OG Image with:', { title, content, imagePath });
 
-    const ogImagePath = `og-images/${Date.now()}.jpeg`;
-    fs.writeFileSync(ogImagePath, ogImage);
+        const ogImage = await generateOGImage(title, content, imagePath);
 
-    res.json({ imageUrl: `http://localhost:5000/${ogImagePath}` });
+        const ogImagePath = `og-images/${Date.now()}.jpeg`;
+        fs.writeFileSync(ogImagePath, ogImage);
+
+        res.status(200).json({ ok: true, imageUrl: `http://localhost:5000/${ogImagePath}` });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ ok: false, message: error });
+    }
 });
 
 app.use('/og-images', express.static('og-images'));

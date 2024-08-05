@@ -3,97 +3,118 @@ const fs = require('fs');
 const path = require('path');
 
 const generateOGImage = async (title, content, imagePath) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-  let imageBase64 = '';
-  if (imagePath) {
-    const imageBuffer = fs.readFileSync(imagePath);
-    imageBase64 = imageBuffer.toString('base64');
-    const mimeType = getMimeType(path.extname(imagePath));
-    imageBase64 = `data:${mimeType};base64,${imageBase64}`;
-  }
+    await page.setViewport({ width: 1200, height: 630 });
 
-  await page.setContent(`
-    <html>
-      <head>
-        <style>
-          body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          }
-          .container {
-            width: 1200px;
-            height: 630px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            box-sizing: border-box;
-          }
-          .title {
-            font-size: 48px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-            max-width: 80%;
-          }
-          .content {
-            font-size: 24px;
-            color: #666;
-            margin-bottom: 30px;
-            text-align: center;
-            max-width: 70%;
-            line-height: 1.4;
-          }
-          .image-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-          }
-          .post-image {
-            max-width: 80%;
-            max-height: 300px;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-          }
+    let imageBase64 = '';
+    if (imagePath) {
+        const imageBuffer = fs.readFileSync(imagePath);
+        imageBase64 = imageBuffer.toString('base64');
+        const mimeType = getMimeType(path.extname(imagePath));
+        imageBase64 = `data:${mimeType};base64,${imageBase64}`;
+    }
+
+    await page.setContent(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+ <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                font-family: 'Arial', sans-serif;
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            }
+            .container {
+                width: 1200px !important;
+                height: 630px !important;
+                position: relative;
+            }
+            .image-wrapper {
+                width: 100%;
+                height: 100%;
+            }
+            .image-wrapper img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .overlay {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 7rem;
+                display : flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .overlay-content {
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.55);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+
+                padding: 0.5rem;
+                box-sizing: border-box;
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .header p {
+                font-weight: 600;
+            }
+            .header img {
+                width: 1.5rem;
+                height: 1.5rem;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            .content {
+                font-weight: 600;
+                margin-top: 0.2rem;
+                font-size: 0.8rem;
+            }
         </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1 class="title">${title}</h1>
-          <p class="content">${content}</p>
-          ${imageBase64 ? `
-            <div class="image-container">
-              <img src="${imageBase64}" alt="Post Image" class="post-image" />
+        </head>
+        <body>
+            <div class="container">
+                <div class="image-wrapper">
+                    <img src="${imageBase64 || 'https://medial.app/image/medial-preview.png'}" alt="banner" />
+                </div>
+                <div class="overlay">
+                    <div class="overlay-content">
+                        <div class="header">
+                            <p>${title}</p>
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXLBf2-ewOK4kykF964sspaLIhK8FC7uIvz3_7drUpuSBdAGynDnw36i9PHfyTlYknDP4&usqp=CAU" alt="medial" />
+                        </div>
+                        <p class="content">${content}</p>
+                    </div>
+                </div>
             </div>
-          ` : ''}
-        </div>
-      </body>
-    </html>
+        </body>
+        </html>
   `);
 
-  const ogImage = await page.screenshot({ type: 'jpeg' });
+    const ogImage = await page.screenshot({ type: 'jpeg', fullPage: true });
 
-  await browser.close();
-  return ogImage;
+    await browser.close();
+    return ogImage;
 };
 
 function getMimeType(extension) {
-  const mimeTypes = {
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.gif': 'image/gif'
-  };
-  return mimeTypes[extension.toLowerCase()] || 'image/jpeg';
+    const mimeTypes = {
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif'
+    };
+    return mimeTypes[extension.toLowerCase()] || 'image/jpeg';
 }
 
 module.exports = generateOGImage;
