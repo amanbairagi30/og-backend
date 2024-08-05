@@ -3,6 +3,7 @@ const multer = require('multer');
 const generateOGImage = require('./utils/generateOGImage');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const cors = require('cors');
 
@@ -38,9 +39,9 @@ app.post('/generate-og-image', upload.single('image'), async (req, res) => {
         const ogImagePath = `og-images/${Date.now()}.jpeg`;
         fs.writeFileSync(ogImagePath, ogImage);
         
-        const orgImageUrl = req.file ? `http://localhost:5000/uploads/${req.file.filename}` : null;
+        const orgImageUrl = req.file ? `${process.env.SERVER_URL}/uploads/${req.file.filename}` : null;
 
-        res.status(200).json({ ok: true, originalImageUrl: orgImageUrl, imageUrl: `http://localhost:5000/${ogImagePath}` });
+        res.status(200).json({ ok: true, originalImageUrl: orgImageUrl, imageUrl: `${process.env.SERVER_URL}/${ogImagePath}` });
 
     } catch (error) {
         console.log(error)
