@@ -34,11 +34,13 @@ app.post('/generate-og-image', upload.single('image'), async (req, res) => {
         console.log('Generating OG Image with:', { title, content, imagePath });
 
         const ogImage = await generateOGImage(title, content, imagePath);
-
+        
         const ogImagePath = `og-images/${Date.now()}.jpeg`;
         fs.writeFileSync(ogImagePath, ogImage);
+        
+        const orgImageUrl = req.file ? `http://localhost:5000/uploads/${req.file.filename}` : null;
 
-        res.status(200).json({ ok: true, imageUrl: `http://localhost:5000/${ogImagePath}` });
+        res.status(200).json({ ok: true, originalImageUrl: orgImageUrl, imageUrl: `http://localhost:5000/${ogImagePath}` });
 
     } catch (error) {
         console.log(error)

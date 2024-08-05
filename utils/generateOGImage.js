@@ -54,7 +54,7 @@ const generateOGImage = async (title, content, imagePath) => {
             .overlay-content {
                 width: 100%;
                 height: 100%;
-                background: rgba(255, 255, 255, 0.55);
+                background: #fff;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
                 backdrop-filter: blur(10px);
 
@@ -93,7 +93,7 @@ const generateOGImage = async (title, content, imagePath) => {
                             <p>${title}</p>
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXLBf2-ewOK4kykF964sspaLIhK8FC7uIvz3_7drUpuSBdAGynDnw36i9PHfyTlYknDP4&usqp=CAU" alt="medial" />
                         </div>
-                        <p class="content">${content}</p>
+                        <p class="content">${content?.slice(0,500)}</p>
                     </div>
                 </div>
             </div>
