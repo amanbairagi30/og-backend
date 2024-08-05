@@ -3,7 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 const generateOGImage = async (title, content, imagePath) => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        executablePath: '/usr/bin/chromium-browser', 
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
 
     await page.setViewport({ width: 1200, height: 630 });
@@ -93,7 +96,7 @@ const generateOGImage = async (title, content, imagePath) => {
                             <p>${title}</p>
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXLBf2-ewOK4kykF964sspaLIhK8FC7uIvz3_7drUpuSBdAGynDnw36i9PHfyTlYknDP4&usqp=CAU" alt="medial" />
                         </div>
-                        <p class="content">${content?.slice(0,500)}</p>
+                        <p class="content">${content?.slice(0, 500)}</p>
                     </div>
                 </div>
             </div>
